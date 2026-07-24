@@ -1,0 +1,130 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  // SQLite for zero-setup local/demo persistence. Swappable to Postgres by
+  // changing provider + url — the schema below uses no SQLite-only types.
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model City {
+  id        String   @id @default(cuid())
+  name      String   @unique
+  createdAt DateTime @default(now())
+
+  templateItems      ChecklistTemplateItem[]
+  relocationsFrom     Relocation[]            @relation("OriginCity")
+  relocationsTo        Relocation[]            @relation("DestCity")
+}
+
+model OpsUser {
+  id        String   @id @default(cuid())
+  name      String   @unique
+  active    Boolean  @default(true)
+  createdAt DateTime @default(now())
+
+  relocations Relocation[]
+}
+
+// Default (cityId = null) + optional per-city overrides. Relocation creation
+// resolves: city-specific rows if present, else the default template.
+model ChecklistTemplateItem {
+  id        String  @id @default(cuid())
+  cityId    String?
+  city      City?   @relation(fields: [cityId], references: [id])
+  groupName String
+  itemKey   String
+  label     String
+  sortOrder Int     @default(0)
+
+  @@unique([cityId, itemKey])
+}
+
+model Relocation {
+  id             String   @id // e.g. QM-2507-0001
+  customerName   String
+  customerPhone  String?
+  originCityId   String
+  originCity     City     @relation("OriginCity", fields: [originCityId], references: [id])
+  destCityId     String
+  destCity       City     @relation("DestCity", fields: [destCityId], references: [id])
+  moveDate       DateTime
+  opsOwnerId     String
+  opsOwner       OpsUser  @relation(fields: [opsOwnerId], references: [id])
+  status         String   @default("active") // active | completed | cancelled
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  checklistItems   ChecklistItem[]
+  aiUpdateLogs     AiUpdateLog[]
+  customerMessages CustomerMessage[]
+  escalations      Escalation[]
+}
+
+model ChecklistItem {
+  id           String   @id @default(cuid())
+  relocationId String
+  relocation   Relocation @relation(fields: [relocationId], references: [id], onDelete: Cascade)
+  itemKey      String
+  groupName    String
+  label        String
+  sortOrder    Int      @default(0)
+  status       String   @default("not_started") // not_started | in_progress | blocked | done
+  note         String   @default("")
+  updatedAt    DateTime @updatedAt
+  updatedBy    String?
+
+  history     ChecklistItemHistory[]
+  escalations Escalation[]
+
+  @@unique([relocationId, itemKey])
+}
+
+model ChecklistItemHistory {
+  id              String        @id @default(cuid())
+  checklistItemId String
+  checklistItem   ChecklistItem @relation(fields: [checklistItemId], references: [id], onDelete: Cascade)
+  oldStatus       String
+  newStatus       String
+  note            String        @default("")
+  changedBy       String?
+  source          String        @default("manual") // manual | ai_parsed
+  changedAt       DateTime      @default(now())
+}
+
+model AiUpdateLog {
+  id           String     @id @default(cuid())
+  relocationId String
+  relocation   Relocation @relation(fields: [relocationId], references: [id], onDelete: Cascade)
+  rawText      String
+  aiResponse   String // JSON string
+  applied      Boolean    @default(false)
+  error        String?
+  createdAt    DateTime   @default(now())
+}
+
+model CustomerMessage {
+  id            String     @id @default(cuid())
+  relocationId  String
+  relocation    Relocation @relation(fields: [relocationId], references: [id], onDelete: Cascade)
+  generatedText String
+  editedText    String?
+  createdAt     DateTime   @default(now())
+}
+
+model Escalation {
+  id              String        @id @default(cuid())
+  relocationId    String
+  relocation      Relocation    @relation(fields: [relocationId], references: [id], onDelete: Cascade)
+  checklistItemId String?
+  checklistItem   ChecklistItem? @relation(fields: [checklistItemId], references: [id])
+  type            String        // blocked | stalled
+  openedAt        DateTime      @default(now())
+  resolvedAt      DateTime?
+  acknowledgedBy  String?
+
+  @@index([relocationId])
+  @@index([checklistItemId, type])
+}

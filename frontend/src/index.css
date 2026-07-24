@@ -1,0 +1,69 @@
+@import url("https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap");
+@import "tailwindcss";
+
+/* Design tokens — "shipping manifest" palette: warm paper background, ink
+   navy text, rust-orange accent, semantic status colors. Prefixing with
+   --color-* / --font-* makes Tailwind v4 auto-generate utilities like
+   bg-rust, text-ink-soft, font-heading. */
+@theme {
+  --color-bg: #f5f4ef;
+  --color-surface: #ffffff;
+  --color-surface-sunken: #efede6;
+  --color-border: #e1ded3;
+  --color-border-strong: #cbc7b8;
+
+  --color-ink: #1c2333;
+  --color-ink-soft: #5b6472;
+  --color-ink-faint: #8a8f99;
+
+  --color-rust: #b8420f;
+  --color-rust-soft: #f1d9cb;
+  --color-blue: #2f6690;
+  --color-blue-soft: #dce7ee;
+  --color-green: #3f7d58;
+  --color-green-soft: #dce9df;
+  --color-amber: #b8860b;
+  --color-amber-dark: #8a6d00;
+  --color-amber-soft: #f3e6c6;
+  --color-gray: #9c9890;
+  --color-gray-soft: #eae8e1;
+
+  --font-heading: "Space Grotesk", system-ui, sans-serif;
+  --font-sans: "Inter", system-ui, sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, monospace;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  font-family: var(--font-sans);
+  color: var(--color-ink);
+  background: var(--color-bg);
+  -webkit-font-smoothing: antialiased;
+}
+
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--color-border-strong);
+  border-radius: 999px;
+}
+
+:focus-visible {
+  outline: 2px solid var(--color-rust);
+  outline-offset: 2px;
+}
