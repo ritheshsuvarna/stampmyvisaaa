@@ -18,7 +18,7 @@ Built for the StampMyVisa "AI Ops Engineer" hiring assignment as the highest-lev
 - **Frontend:** React + Vite, Tailwind CSS v4, Framer Motion, Lucide icons, React Router, React Hook Form, TanStack Query, Zustand
 - **Backend:** Node.js + Express, REST API, Zod validation
 - **Database:** SQLite via Prisma (schema is Postgres-portable — see below)
-- **AI:** Claude API (`@anthropic-ai/sdk`), called server-side only
+- **AI:** Gemini API (`gemini-2.5-flash`, free tier), called server-side only
 
 ## Project structure
 
@@ -34,7 +34,7 @@ Two terminals — backend first, then frontend.
 ```bash
 cd backend
 npm install
-cp .env.example .env      # fill in ANTHROPIC_API_KEY if you have one — optional
+cp .env.example .env      # fill in GEMINI_API_KEY if you have one — optional
 npm run db:migrate        # creates prisma/dev.db and applies the schema
 npm run db:seed           # seeds 8 cities, 5 ops users, the default checklist template
 npm run dev                # http://localhost:4000
@@ -46,7 +46,9 @@ npm install
 npm run dev                # http://localhost:5173 — proxies /api to :4000 in dev
 ```
 
-Open http://localhost:5173. If you skip the `ANTHROPIC_API_KEY`, everything works except the two AI panels, which show a clear "AI features are not configured" message instead of failing silently.
+Open http://localhost:5173. If you skip the `GEMINI_API_KEY`, everything works except the two AI panels, which show a clear "AI features are not configured" message instead of failing silently.
+
+Get a free key at [aistudio.google.com/apikey](https://aistudio.google.com/apikey) — no credit card required.
 
 ## Environment variables
 
@@ -54,7 +56,7 @@ Open http://localhost:5173. If you skip the `ANTHROPIC_API_KEY`, everything work
 ```
 DATABASE_URL="file:./dev.db"
 PORT=4000
-ANTHROPIC_API_KEY=          # optional — AI parse/draft return 503 without it
+GEMINI_API_KEY=              # optional — AI parse/draft return 503 without it
 ```
 
 **frontend/.env** *(optional for local dev — Vite's proxy handles it)*
@@ -72,7 +74,7 @@ The Express backend serves the built frontend directly (`backend/src/app.js` ser
 - Build command: `cd frontend && npm install && npm run build && cd ../backend && npm install`
 - Start command: `cd backend && npm run db:deploy && npm run db:seed && npm start` (both are idempotent — safe on every restart)
 - Add a persistent volume mounted at `backend/prisma` (Railway: Service → Volumes) so the SQLite file survives restarts/redeploys — without it, data resets on every deploy.
-- Environment variables: `ANTHROPIC_API_KEY` (optional), `DATABASE_URL=file:./dev.db`. Leave `PORT` alone — the platform injects it and the app already reads `process.env.PORT`.
+- Environment variables: `GEMINI_API_KEY` (optional), `DATABASE_URL=file:./dev.db`. Leave `PORT` alone — the platform injects it and the app already reads `process.env.PORT`.
 - Generate a public domain for the service — that URL is the one link to submit; it serves both the UI and the API.
 
 ### Option B — frontend and backend on separate platforms
@@ -90,7 +92,7 @@ Either option works fine on SQLite + a volume at this scale (5 ops users, a few 
 
 - **Checklist templates are per-city-capable, not hardcoded globally.** `ChecklistTemplateItem` rows with `cityId = null` are the default; city-specific override rows (e.g. a Bengaluru-only step) take precedence automatically — no code change needed to add one, just a data change. v1 ships only the default template for all 8 cities.
 - **Every checklist edit is audited.** `ChecklistItemHistory` records old status → new status, who changed it, and whether it came from a manual edit or an AI-applied suggestion.
-- **AI never writes directly.** Both AI features return suggestions; a human always clicks apply. The parser also retries once with a corrective prompt if Claude returns malformed JSON, and logs every attempt (`AiUpdateLog`) for debugging.
+- **AI never writes directly.** Both AI features return suggestions; a human always clicks apply. The parser also retries once with a corrective prompt if Gemini returns malformed JSON, and logs every attempt (`AiUpdateLog`) for debugging. Gemini's default "thinking" mode is explicitly disabled (`thinkingBudget: 0`) — this app needs the answer, not a reasoning trace eating into the output budget.
 - **Escalations are a real table, not just a computed view** — so "how long was this blocked before someone noticed" is an actual queryable metric, not lost the moment the status changes.
 
 ## Known limitations / next steps

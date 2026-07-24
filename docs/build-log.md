@@ -119,6 +119,20 @@ Rendered via headless Chrome (`--headless --print-to-pdf`). **Verified rather th
 
 ---
 
+## Phase 9 — Swapping providers mid-flight: "alternative free api" → a pasted Gemini key
+
+User asked for a free alternative to the (paid) Anthropic API. Gave three real options (Gemini, Groq, OpenRouter) with an honest ranking rather than just the first one that came to mind — Gemini specifically because its instruction-following on structured JSON extraction is the best fit for what the parser actually needs. User's next message was just the raw key value and "gemini key" — no further instruction, but the intent was obvious enough to act on directly rather than ask "do you want me to use this?"
+
+**Didn't trust the key blindly.** The format looked off — standard Google AI Studio keys start with `AIzaSy...`; this one started with `AQ.` — so before touching any application code, tested it directly against the real Gemini REST endpoint with a throwaway Node script. Result: a `429` with `limit: 0` on `gemini-2.0-flash` specifically — which is actually informative, not just a failure. A `429` means the key *authenticated* (a bad key returns `400`/`403`), it just has zero free-tier quota allocated for that particular model. Tested three other model names on the same key before concluding `gemini-2.5-flash` had real quota available and worked cleanly — found this out before writing a single line of the actual integration, so I wasn't debugging "is my code wrong" and "is my key wrong" at the same time.
+
+**Rewrote `backend/src/services/aiService.js`** to call Gemini via raw `fetch` against the REST endpoint rather than pull in the Gemini SDK as a new dependency — the request/response shape is simple enough not to need it, and it keeps the diff small. Renamed the env var (`ANTHROPIC_API_KEY` → `GEMINI_API_KEY`) everywhere it appeared: the service itself, `index.js`'s startup warning, `.env`/`.env.example`, and the README's setup/deploy instructions. Removed the now-unused `@anthropic-ai/sdk` dependency rather than leave a dead import sitting in `package.json`.
+
+**Found a second real bug testing the swap, not the key issue this time:** the message-drafter endpoint returned a response that cut off mid-sentence — `"...We'"`. Root cause: `gemini-2.5-flash` "thinks" by default, and that reasoning silently consumes part of the `maxOutputTokens` budget before the model writes the visible answer, so a 1000-token budget that was plenty for Claude wasn't enough once a chunk of it went to an invisible reasoning pass. Fixed by explicitly setting `thinkingConfig: { thinkingBudget: 0 }` — this app needs the answer, not a reasoning trace. Retested both endpoints afterward, including through the actual browser UI (not just `curl`) to confirm the full request path — button click → network request → rendered suggestion checkboxes — still worked end to end, and checked the console for errors along the way.
+
+**Left the historical record alone.** This log and the presentation script still describe Claude because that's what was true when those phases happened — I didn't go back and silently rewrite them to say Gemini, since that would misrepresent what the session actually did. Only the README changed, because it documents *current* setup instructions, not history.
+
+---
+
 ## Decisions I made without asking, and why
 
 - **SQLite over Postgres** for the database — zero external signup, portable schema (documented the exact provider-swap steps in the README for later). Asked the user once via `AskUserQuestion`; they said "no preference," so I went with my stated recommendation rather than re-asking.
