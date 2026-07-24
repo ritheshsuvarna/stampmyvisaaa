@@ -2,7 +2,7 @@
 
 A production-ready tool for QuickMove's ops team to track every relocation from kickoff to settled-in: a structured checklist per move, automatic escalation detection (blocked/stalled), and two AI features that turn the team's existing WhatsApp-style workflow into structured data instead of fighting it.
 
-Built for the StampMyVisa "AI Ops Engineer" hiring assignment as the highest-leverage workflow identified in the operations map: structured status tracking + escalation detection, unlocked for adoption by AI parsing of the team's existing WhatsApp-style updates.
+Built for the StampMyVisa "AI Ops Engineer" hiring assignment as the highest-leverage workflow identified in [the operations map](docs/the-map.md): structured status tracking + escalation detection, unlocked for adoption by AI parsing of the team's existing WhatsApp-style updates.
 
 ## What it does
 
