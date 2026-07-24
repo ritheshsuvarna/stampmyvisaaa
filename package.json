@@ -4,7 +4,7 @@
   "version": "1.0.0",
   "description": "QuickMove Relocation Operations Tracker — root build orchestration for single-service deploy (Railway/Render). Not used for local dev — run frontend and backend separately, see README.",
   "engines": {
-    "node": ">=18"
+    "node": ">=20.19.0"
   },
   "scripts": {
     "build": "npm install --prefix frontend && npm run build --prefix frontend && npm install --prefix backend",
