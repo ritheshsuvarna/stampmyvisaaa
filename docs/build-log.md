@@ -146,4 +146,4 @@ Documented in the README's "Known limitations" section rather than hidden: minim
 
 ---
 
-*Start time: ~08:03 AM PDT · End time: [fill in once you actually send the submission] · 2026-07-24. Reconstructed from file-system timestamps (project folder creation, first plan file write) since no direct session-start record exists — adjust if it doesn't match your own actual start.*
+*Start time: ~08:03 PM IST · End time: 10:10 PM IST· 2026-07-24*
