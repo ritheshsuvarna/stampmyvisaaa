@@ -64,9 +64,27 @@ VITE_API_BASE_URL=          # set only for production builds, e.g. https://your-
 
 ## Deployment
 
-- **Frontend → Vercel:** import `frontend/` as the project root, set `VITE_API_BASE_URL` to the deployed backend's URL, deploy.
-- **Backend → Railway or Render:** import `backend/` as the project root, set `DATABASE_URL` and `ANTHROPIC_API_KEY`, set the start command to `npm run db:deploy && npm run db:seed && npm start` for the first deploy (drop the seed step after the DB is initialized), expose port from `PORT`.
-- Switching from SQLite to Postgres for production: change `provider = "sqlite"` to `provider = "postgresql"` in `backend/prisma/schema.prisma` and point `DATABASE_URL` at your Postgres instance (Neon/Supabase both work) — the schema uses no SQLite-only types, so no other changes are needed.
+### Option A — one service, one URL (recommended)
+
+The Express backend serves the built frontend directly (`backend/src/app.js` serves `frontend/dist` as static files with an SPA fallback, when that folder exists). One deploy, one platform, one link, no CORS/env-var juggling between two origins.
+
+**Railway or Render**, root directory = **repo root** (not `backend/`):
+- Build command: `cd frontend && npm install && npm run build && cd ../backend && npm install`
+- Start command: `cd backend && npm run db:deploy && npm run db:seed && npm start` (both are idempotent — safe on every restart)
+- Add a persistent volume mounted at `backend/prisma` (Railway: Service → Volumes) so the SQLite file survives restarts/redeploys — without it, data resets on every deploy.
+- Environment variables: `ANTHROPIC_API_KEY` (optional), `DATABASE_URL=file:./dev.db`. Leave `PORT` alone — the platform injects it and the app already reads `process.env.PORT`.
+- Generate a public domain for the service — that URL is the one link to submit; it serves both the UI and the API.
+
+### Option B — frontend and backend on separate platforms
+
+Only worth it if you want the frontend on a CDN (Vercel) specifically.
+
+- **Frontend → Vercel:** import `frontend/` as the project root, set `VITE_API_BASE_URL` to the deployed backend's URL + `/api`, deploy.
+- **Backend → Railway or Render:** import `backend/` as the project root, same start command and volume as above minus the frontend build step.
+
+### Postgres instead of SQLite
+
+Either option works fine on SQLite + a volume at this scale (5 ops users, a few hundred relocations/month). To switch: change `provider = "sqlite"` to `provider = "postgresql"` in `backend/prisma/schema.prisma` and point `DATABASE_URL` at a Postgres instance (Neon/Supabase/Railway's own Postgres addon all work) — the schema uses no SQLite-only types, so no other changes are needed.
 
 ## Design notes
 
