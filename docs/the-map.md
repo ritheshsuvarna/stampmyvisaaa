@@ -1,6 +1,6 @@
 # The Map — QuickMove Operations, as a System
 
-*AI Ops Engineer hiring assignment, Submission 1. Draft — [your name], review and finish in your own words before submitting; this was built collaboratively with Claude Code as the assignment's rules explicitly invite.*
+**Rithesh Suvarna** — AI Ops Engineer hiring assignment, Submission 1 (StampMyVisa). Built collaboratively with Claude Code, as the assignment's rules explicitly invite.
 
 ---
 
@@ -87,7 +87,7 @@ The single arrow worth staring at: **lease signed is a fan-out gate.** Four util
 
 ## 3. Workflow inventory
 
-Anyone can list the 6 stages on the checklist. Broken into what ops actually has to *do*, there are 28+:
+Anyone can list the 6 stages on the checklist. Broken into what ops actually has to *do*, there are 31:
 
 **Pre-move (3)**
 1. Lead-to-ops handoff
@@ -127,7 +127,7 @@ Anyone can list the 6 stages on the checklist. Broken into what ops actually has
 25. 7-day check-in
 26. Ongoing issue/complaint resolution (open-ended, not a single step)
 
-**Cross-cutting operations (5+)**
+**Cross-cutting operations (5)**
 27. Vendor performance tracking / scorecarding
 28. Customer status communication
 29. Escalation handling
@@ -138,7 +138,7 @@ Anyone can list the 6 stages on the checklist. Broken into what ops actually has
 
 ## 4. Top 3 automation opportunities, ranked
 
-**1. Structured status tracking + escalation detection.** This is the foundation, not a feature — it touches every one of the 28 workflows above, every day, for every relocation. The single highest hidden cost in the current process isn't any one broken workflow; it's that *nothing surfaces itself*. A stalled utility connection and a customer waiting on a bank address update look identical in a WhatsApp thread: silent. Nothing else on this list compounds without this existing first.
+**1. Structured status tracking + escalation detection.** This is the foundation, not a feature — it touches every one of the 31 workflows above, every day, for every relocation. The single highest hidden cost in the current process isn't any one broken workflow; it's that *nothing surfaces itself*. A stalled utility connection and a customer waiting on a bank address update look identical in a WhatsApp thread: silent. Nothing else on this list compounds without this existing first.
 
 **2. AI parsing of freeform WhatsApp-style updates into structured checklist state.** Ranked second, deliberately, because it isn't a value source on its own — it's the *adoption unlock* for #1. Ops already communicates this way, all day, across 5 people. Asking them to also manually re-enter status into a separate tool is exactly why spreadsheet-based trackers die within a month. This removes that tax entirely.
 
@@ -184,4 +184,4 @@ Anyone can list the 6 stages on the checklist. Broken into what ops actually has
 
 ---
 
-*[Your name] — add your own framing, priorities, and anything from your own experience with the assignment that this draft is missing before submitting.]*
+— Rithesh Suvarna
